@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  nom       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Categorie {
+  id        String     @id @default(cuid())
+  nom       String     @unique
+  slug      String     @unique
+  emoji     String     @default("✂️")
+  ordre     Int        @default(0)
+  creations Creation[]
+  createdAt DateTime   @default(now())
+}
+
+model Creation {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  titre       String
+  description String
+  prix        String
+  delai       String
+  featured    Boolean   @default(false)
+  nouveaute   Boolean   @default(false)
+  publiee     Boolean   @default(true)
+  vues        Int       @default(0)
+  categorieId String
+  categorie   Categorie @relation(fields: [categorieId], references: [id])
+  medias      Media[]
+  tissus      String[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Media {
+  id         String   @id @default(cuid())
+  url        String
+  publicId   String
+  estCouv    Boolean  @default(false)
+  ordre      Int      @default(0)
+  creationId String
+  creation   Creation @relation(fields: [creationId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+}
+
+model Commande {
+  id            String         @id @default(cuid())
+  nom           String
+  telephone     String
+  email         String?
+  typeTenue     String
+  tissu         String?
+  mesures       String?
+  dateLivraison DateTime
+  message       String?
+  statut        StatutCommande @default(NOUVEAU)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model Avis {
+  id          String   @id @default(cuid())
+  nom         String
+  ville       String?
+  note        Int
+  commentaire String
+  tenue       String?
+  publie      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
+enum StatutCommande {
+  NOUVEAU
+  EN_COURS
+  PRET
+  LIVRE
+  ANNULE
+}
